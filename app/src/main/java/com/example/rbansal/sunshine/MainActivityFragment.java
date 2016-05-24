@@ -31,8 +31,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 
 /**
@@ -68,11 +66,7 @@ public class MainActivityFragment extends Fragment {
 //            return true;
 //        }
         if (id == R.id.action_refresh) {
-            FetchWeatherTask weatherTask = new FetchWeatherTask();
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                       String location = prefs.getString(getString(R.string.pref_location_key),
-                                       getString(R.string.pref_location_default));
-            weatherTask.execute(location);
+            updateWeather();
             return true;
         }
 
@@ -85,16 +79,6 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        String[] forecastArray = {
-                "Today - Sunny - 88/76",
-                "Tomorrow - Sunny - 70/65",
-                "Weds - Cloudy - 85/72",
-                "Thurs - Sunny - 88/76",
-                "Fri - Foggy - 98/76",
-                "Sat - Snowy - 24/-13",
-                "Sun - Hot - 101/95"
-        };
-        List<String> weekForecast = new ArrayList<String>(Arrays.asList(forecastArray));
 
         mForecastAdapter =
                 new ArrayAdapter<String>(
@@ -105,7 +89,7 @@ public class MainActivityFragment extends Fragment {
                         //ID of the textview to populate
                         R.id.list_item_forecast_textview,
                         //Forecast data
-                        weekForecast);
+                        new ArrayList<String>());
 
         ListView listView = (ListView)rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
@@ -125,6 +109,20 @@ public class MainActivityFragment extends Fragment {
 
         return rootView;
     }
+    //helper function for updating weather
+    private void updateWeather() {
+               FetchWeatherTask weatherTask = new FetchWeatherTask();
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                String location = prefs.getString(getString(R.string.pref_location_key),
+                                getString(R.string.pref_location_default));
+                weatherTask.execute(location);
+            }
+
+                @Override
+        public void onStart() {
+                super.onStart();
+                updateWeather();
+            }
     //inner class for implementing fetchWeather thread in background using asynctask
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
