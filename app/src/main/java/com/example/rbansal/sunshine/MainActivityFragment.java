@@ -35,6 +35,8 @@ import java.util.List;
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
+    //declare adapter globally so that it is sccessible to FetchWeatherTask
+    private ArrayAdapter<String> mForecastAdapter;
 
     public MainActivityFragment() {
     }
@@ -87,7 +89,7 @@ public class MainActivityFragment extends Fragment {
         };
         List<String> weekForecast = new ArrayList<String>(Arrays.asList(forecastArray));
 
-        ArrayAdapter<String> mForecastAdapter =
+        mForecastAdapter =
                 new ArrayAdapter<String>(
                         //The current context
                         getActivity(),
@@ -201,7 +203,7 @@ public class MainActivityFragment extends Fragment {
             }
 
             for (String s : resultStrs) {
-                Log.v(LOG_TAG, "Forecast entry: " + s);
+               // Log.v(LOG_TAG, "Forecast entry: " + s);
             }
             return resultStrs;
 
@@ -245,7 +247,7 @@ public class MainActivityFragment extends Fragment {
                 // http://openweathermap.org/API#forecast
                 URL url = new URL(builtUri.toString());
                 //verifying the url formed by logging it
-                Log.v(LOG_TAG,"Built URI " + builtUri.toString());
+                //Log.v(LOG_TAG,"Built URI " + builtUri.toString());
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -274,7 +276,7 @@ public class MainActivityFragment extends Fragment {
                     return null;
                 }
                 forecastJsonStr = buffer.toString();
-                Log.v(LOG_TAG,"Forecast JSON String: " + forecastJsonStr);
+               // Log.v(LOG_TAG,"Forecast JSON String: " + forecastJsonStr);
             } catch (IOException e) {
                 Log.e("PlaceholderFragment", "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
@@ -301,6 +303,15 @@ public class MainActivityFragment extends Fragment {
             }
             //this will happen only if there is an error ehile parsing data
             return null;
+        }
+        @Override
+        protected void onPostExecute(String[] result) {
+            if(result!= null) {
+                mForecastAdapter.clear();
+                for(String dayForecastStr : result) {
+                    mForecastAdapter.add(dayForecastStr);
+                }
+            }
         }
     }
 }
